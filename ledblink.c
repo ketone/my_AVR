@@ -15,7 +15,7 @@ int main(void)
     while (1)
     {
         _delay_ms(1000);     //execute delay 1s
- // __builtin_avr_delay_cycles (100);
+ 
         PORTC ^= 1 << PINC5; // toggle the outout pin
     }
     return 0;
