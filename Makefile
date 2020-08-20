@@ -1,47 +1,59 @@
 #Main application file name
 MAIN_APP = ledblink
 TARGET	= avr
-MCU	= atmega328p  
-#Main hex file path in windows format
-HEX_PATH	=
 
-# Compiler and other Section
+# The microcontroller
+MCU = atmega328p
+
+# The location of the AVR-LIBC headers
+AVR_LIBC_HEADERS = C:\avr8\avr\include
+
+# The name of the toolchain
 CC	= clang
-LINKER	= clang
-OBJCOPY = llvm-objcopy
-PROGRAMMER	= avrdude
+LLC = llc
+MC  = llvm-mc
+LINKER	= avr-gcc
+OBJDUMP	= avr-objdump
+OBJCOPY	= llvm-objcopy
 
-#Options for clang
-CFLAGS = -Os --target=$(TARGET) -mmcu=$(MCU)
+# parameters
+CFLAGS = -g -O --target=$(TARGET) -mmcu=$(MCU) -isystem $(AVR_LIBC_HEADERS)
 
-#Linking options for clang
-LFLAGS = -Os --target=$(TARGET) -mmcu=$(MCU) -Wl,-Map=$(MAIN_APP).map -o
- 
-#Options for HEX file generation
+LLCFLAGS = -march=$(TARGET) -mcpu=$(MCU)
+
+MCFLAGS = -arch=$(TARGET) -mcpu=$(MCU)
+
+LFLAGS = -g -O -mmcu=$(MCU) -isystem $(AVR_LIBC_HEADERS) -Wl,-Map=$(MAIN_APP).map -o
+
 HFLAGS = -j .text -j .data -O ihex
-
-
 
 # Sources files needed for building the application 
 SRC = $(MAIN_APP).c
-SRC += 
 
-# The headers files needed for building the application
-INCLUDE = -I.
-INCLUDE	+= -IC:\avr-gcc\avr\include
 
-# commands Section
-
-Build : $(MAIN_APP).elf
+build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex
-	
+	$(OBJDUMP) -h -S $< > $(MAIN_APP).lst
+
 $(MAIN_APP).elf: $(MAIN_APP).o
-	$(LINKER) $(LFLAGS) $@ $(SRC) $(INCLUDE)
- 
-$(MAIN_APP).o:$(SRC)
-	$(CC) $(CFLAGS) $^ $(INCLUDE) -o $@
+	$(LINKER) $(LFLAGS) $@ $(SRC)
+
+$(MAIN_APP).o: $(MAIN_APP).s
+	$(MC) -filetype=obj $(MCFLAGS) $< -o $@
 	
+$(MAIN_APP).s: $(MAIN_APP).ll
+	$(LLC) -filetype=asm $(LLCFLAGS) $< -o $@
+
+$(MAIN_APP).ll:$(SRC)
+	$(CC) -c -S -emit-llvm $(CFLAGS) $< -o $@
+	
+rebuild: clean build
+
 clean:
-	rm *.o
-	rm *.elf
-	rm *.hex
+	rm -rf *.ll
+	rm -rf *.s
+	rm -rf *.o
+	rm -rf *.map
+	rm -rf *.elf	
+	rm -rf *.hex
+	rm -rf *.lst
