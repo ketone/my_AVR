@@ -12,7 +12,7 @@ AVR_LIBC_HEADERS = C:\avr-gcc\avr\include\
 CC	= clang
 LLC = llc
 MC  = llvm-mc
-LINKER	= clang
+LINKER	= avr-gcc
 OBJDUMP	= llvm-objdump
 OBJCOPY	= llvm-objcopy
 
