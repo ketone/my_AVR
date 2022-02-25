@@ -6,13 +6,13 @@ TARGET	= avr
 MCU = atmega328p
 
 # The location of the AVR-LIBC headers
-AVR_LIBC_HEADERS = /mingw64/avr/include
+AVR_LIBC_HEADERS = C:\avr-gcc\avr\include\
 
 # The name of the toolchain
 CC	= clang
 LLC = llc
 MC  = llvm-mc
-LINKER	= avr-gcc
+LINKER	= clang
 OBJDUMP	= llvm-objdump
 OBJCOPY	= llvm-objcopy
 
@@ -50,10 +50,10 @@ $(MAIN_APP).ll:$(SRC)
 rebuild: clean build
 
 clean:
-	rm -rf *.ll
-	rm -rf *.s
-	rm -rf *.o
-	rm -rf *.map
-	rm -rf *.elf	
-	rm -rf *.hex
-	rm -rf *.lst
+	del *.ll
+	del *.s
+	del *.o
+	del *.map
+	del *.elf	
+	del *.hex
+	del *.lst
