@@ -4,6 +4,7 @@ TARGET	= avr
 
 # The microcontroller
 MCU = atmega328p
+CLK = 16000000
 
 # The location of the AVR-LIBC headers
 AVR_LIBC_HEADERS = C:\avr-gcc\avr\include\
@@ -15,15 +16,16 @@ MC  = llvm-mc
 LINKER	= avr-gcc
 OBJDUMP	= llvm-objdump
 OBJCOPY	= llvm-objcopy
+SIZE = avr-size
+
+# optimisation
+OPTI = O
 
 # parameters
-CFLAGS = -g -O --target=$(TARGET) -mmcu=$(MCU) -isystem $(AVR_LIBC_HEADERS) -c -S -emit-llvm
+CFLAGS = -$(OPTI) --target=$(TARGET) -mmcu=$(MCU) -DF_CPU=$(CLK)
 
-LLCFLAGS = -filetype=asm -march=$(TARGET) -mcpu=$(MCU)
 
-MCFLAGS = -filetype=obj -arch=$(TARGET) -mcpu=$(MCU)
-
-LFLAGS = -g -O -mmcu=$(MCU) -isystem $(AVR_LIBC_HEADERS) -Wl,-Map=$(MAIN_APP).map -o
+LFLAGS = -$(OPTI) -mmcu=$(MCU) -DF_CPU=$(CLK) -Wl,-Map=$(MAIN_APP).map
 
 HFLAGS = -j .text -j .data -O ihex
 
@@ -34,24 +36,17 @@ SRC = $(MAIN_APP).c
 build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex
 	$(OBJDUMP) -h -S $< > $(MAIN_APP).lst
+	$(SIZE) $<
 
 $(MAIN_APP).elf: $(MAIN_APP).o
-	$(LINKER) $(LFLAGS) $@ $(SRC)
+	$(LINKER) $(LFLAGS) -o $@ $<
 
-$(MAIN_APP).o: $(MAIN_APP).s
-	$(MC) $(MCFLAGS) $< -o $@
-	
-$(MAIN_APP).s: $(MAIN_APP).ll
-	$(LLC) $(LLCFLAGS) $< -o $@
-
-$(MAIN_APP).ll:$(SRC)
-	$(CC) $(CFLAGS) $< -o $@
-	
+$(MAIN_APP).o: $(SRC)
+	$(CC) $(CFLAGS) -isystem $(AVR_LIBC_HEADERS) -c $< -o $@
+		
 rebuild: clean build
 
 clean:
-	del *.ll
-	del *.s
 	del *.o
 	del *.map
 	del *.elf	
