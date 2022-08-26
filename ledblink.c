@@ -1,5 +1,5 @@
 //
-
+// https://www.avrfreaks.net/forum/delaymst-not-permit
 #define __DELAY_BACKWARD_COMPATIBLE__
 
 #include <avr/io.h>
@@ -16,7 +16,7 @@ int main(void)
     {
         _delay_ms(1000);     //execute delay 1s
  
-        PORTD ^= 1 << PIND7; // toggle the outout pin
+        PORTD ^= 1 << PIND7; // toggle the output pin
 
     }
     return 0;
