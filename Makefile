@@ -4,7 +4,7 @@ TARGET	= avr
 
 # The microcontroller
 MCU = atmega32
-CLK = 16000000
+CLK = 16000000UL
 
 # The name of the toolchain
 CC	= clang
@@ -21,7 +21,7 @@ CFLAGS = $(OPTI) --target=$(TARGET) -mmcu=$(MCU) -DF_CPU=$(CLK)
 
 LFLAGS = $(CFLAGS) -Wl,-Map,$(MAIN_APP).map
 
-HFLAGS = -j .text -j .data $(OPTI) ihex
+HFLAGS = -j .text -j .data -O ihex
 
 # Source files needed for building the application 
 SRC = $(MAIN_APP).c
