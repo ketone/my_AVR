@@ -19,5 +19,4 @@ int main(void)
         PORTD ^= 1 << PIND7; // toggle the output pin
 
     }
-    return 0;
 }
